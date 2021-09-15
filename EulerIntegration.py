@@ -1,19 +1,23 @@
 import numpy as np 
 import matplotlib.pyplot as plt 
-from NumericalIntegration import *
+from NumericalIntegration import EulerIntegrator
 
-#Rango de integración
+sim_time = np.pi
+sim_limit = 2*np.pi
+sim_step = 0.2
+result = [0.0]
+time_vector = [sim_time]
 
-t = np.linspace(np.pi,2*np.pi,100)
-#Función
+while sim_time < sim_limit:
+    integrate = EulerIntegrator.integrate(sim_step,time_vector[-1],np.array([result[-1]]),[lambda t,y: (np.cos(t)/t**2)-(2/t)*y])
+    result.extend(integrate)
+    sim_time += sim_step
+    time_vector.extend([sim_time])
 
-#Integración numérica
-
-y = EulerODE(t, 0, lambda t,y: (np.cos(t)/t**2)-(2/t)*y)
-y_exacta = np.sin(t)/((t**2))
+y_exacta = np.sin(np.array(time_vector))/((np.array(time_vector)**2))
 #Resultado
 
-plt.plot(t,y,'b.-',t,y_exacta,'r-')
-plt.legend(['Euler','Exacta'])
+plt.plot(time_vector,result,'b.-',time_vector,y_exacta,'r-')
+plt.legend(['Euler','Exact'])
 plt.grid(True)
 plt.show()

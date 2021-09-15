@@ -1,85 +1,24 @@
-import numpy as np 
+import numpy as np
+from abc import abstractclassmethod, ABC
 
-def EulerODE(t,y0,fun):
-
-#  Euler method integration. 
-# -------------------------------------------
-#  * t is the vector (array) containing the independent variable values where the ODE is to be evaluated.
-#  * y0 is the initial value for the problem. 
-#  * fun is the f(t,y) function obtained when the EDO is expressed as y' = f(t,y)
-
-    y = np.zeros(len(t)) #y values for the ODE. 
-    y[0] = y0 #Initial condition is the first value of the array.
-
-    #Euler integration:
-
-    for i in range(len(t)-1):
-        y[i+1] = y[i] + (t[i+1]-t[i])*fun(t[i],y[i])
-    return y
+# Numerical methods for integration.
+class Integrator(ABC):
+    @abstractclassmethod
+    def integrate(time_step, time, initial_vector, function) -> np.ndarray:
+        pass
 
 
+class EulerIntegrator(Integrator):
+    @staticmethod
+    def integrate(time_step, time, initial_vector, function) -> np.ndarray:
 
+        result = np.zeros(initial_vector.shape)
 
-# RK4 integration (classic Runge-Kutta method) for 1st order ODE.
-# -------------------------------------------
-#  * t is the vector (array) containing the independent variable values where the ODE is to be evaluated.
-#  * y0 is the initial value for the problem. 
-#  * fun is the f(t,y) function obtained when the EDO is expressed as y' = f(t,y)
+        for idx, dimension in enumerate(np.array(initial_vector)):
+            fun = function[idx]
+            result[idx] = dimension + time_step*float(fun(time,dimension))
 
-def RK4(t,y0,fun):
-
-    y = np.zeros(len(t))
-    y[0] = y0
-
-    h = t[1]- t[0]
-        
-    for i in range(len(t)-1):
-
-        k1 = fun(t[i],y[i])
-        k2 = fun(t[i]+h/2, y[i] + h*(k1/2))
-        k3 = fun(t[i]+h/2, y[i] + h*(k2/2))
-        k4 = fun(t[i]+h , y[i] + h*k3)
-
-        y[i+1] = y[i] + (1/6)*h*(k1+2*k2+2*k3+k4)
-
-    return y
-
-#RK4 integration (classic Runge-Kutta method) for 2nd order ODE.
-# -------------------------------------------
-#  * t is the vector (array) containing the independent variable values where the ODE is to be evaluated.
-#  * y0 and z0 are the initial values for the problem. 
-#  * f and g are the functions when separating the 2nd order ODE in a system of two first order ODEs
-
-
-def RK4_2ndOrder(t,y0,z0,f,g):
-
-    y = np.zeros(len(t))
-    y[0] = y0
-    z = np.zeros(len(t))
-    z[0] = z0
-
-    h = h = t[1]- t[0]
-
-    for i in range(len(t)-1):
-    
-        k1 = f(t[i], y[i], z[i])
-        l1 = g(t[i], y[i], z[i])
-
-        k2 = f(t[i]+h/2, y[i] + h*(k1/2), z[i] + h*(l1/2))
-        l2 = g(t[i]+h/2, y[i] + h*(k1/2), z[i] + h*(l1/2))
-
-        k3 = f(t[i]+h/2, y[i] + h*(k2/2), z[i] + h*(l2/2))
-        l3 = g(t[i]+h/2, y[i] + h*(k2/2), z[i] + h*(l2/2))
-
-        k4 = f(t[i]+h , y[i] + h*k3, z[i] + h*l3)
-        l4 = g(t[i]+h , y[i] + h*k3, z[i] + h*l3)
-
-        y[i+1] = y[i] + (1/6)*h*(k1+2*k2+2*k3+k4)
-        z[i+1] = z[i] + (1/6)*h*(l1+2*l2+2*l3+l4)
-
-    results = np.array([[y],[z]])
-
-    return results
+        return result.tolist()
 
 
 

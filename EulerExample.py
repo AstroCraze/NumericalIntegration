@@ -1,20 +1,24 @@
 import numpy as np 
 import matplotlib.pyplot as plt 
-from NumericalIntegration import EulerODE, RK4
+from NumericalIntegration import EulerIntegrator
 
-#Integration interval. Delta defines how many points in the interval will be evaluated. The larger the number for the same interval, the better the aproximation. 
-delta = 50 #50 is the default number of samples for linspace.  
-t = np.linspace(0.0,4.0,delta) #Values for the independent variable. 
+sim_time = 0.0
+sim_limit = 5.0
+sim_step = 0.2
+result = [1.0]
+time_vector = [sim_time]
 
-#Here we define the ODE. In this example the ODE is y = y'. It's passed to the EulerODE using a lambda function. 
+while sim_time < sim_limit:
+    integrate = EulerIntegrator.integrate(sim_step,time_vector[-1],np.array([result[-1]]),[lambda t,y: y])
+    result.extend(integrate)
+    sim_time += sim_step
+    time_vector.extend([sim_time])
 
-y_Euler = EulerODE(t, 1.0, lambda t,y: y)
-y_RK4 = RK4(t, 1.0, lambda t,y: y)
-y_exact = np.exp(t)
+y_exact = np.exp(time_vector)
 
 #Plotting the results. I include the analytical solution (y = exp(t)) for comparison purposes. 
 
-plt.plot(t,y_Euler,'b.-',t,y_exact,'r-')
+plt.plot(time_vector,result,'b.-',time_vector,y_exact,'r-')
 plt.legend(['Euler','Analytical'])
 plt.grid(True)
 plt.show()
